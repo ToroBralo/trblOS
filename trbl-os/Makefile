@@ -1,0 +1,117 @@
+.PHONY: boot os remove ERASE help
+
+# Variables
+CARGO = cargo
+NASM = nasm
+QEMU_IMG = qemu-img
+DD = dd
+VBOX = VBoxManage
+
+OS_IMAGE = trbl-os.img
+VDI_IMAGE = trbl-os.vdi
+BINARY = trbl-os.bin
+BOOT_BIN = boot/boot.bin
+
+# Build bootloader and kernel
+boot:
+	@echo "Building bootloader and kernel..."
+	@$(CARGO) build --target x86_64-trbl_os.json
+	@$(NASM) -f bin boot/boot.asm -o $(BOOT_BIN)
+	@echo "Converting kernel ELF to flat binary..."
+	@llvm-objcopy -O binary target/x86_64-trbl_os/debug/trbl-os target/x86_64-trbl_os/debug/trbl-os.bin
+	@echo "Bootloader built successfully!"
+
+# Create OS image files
+os: boot
+	@echo "Creating Main Binary..."
+	@cat $(BOOT_BIN) target/x86_64-trbl_os/debug/trbl-os.bin > $(BINARY)
+	@echo "Done!"
+	@echo "Converting to QEMU image..."
+	@$(QEMU_IMG) create -f raw $(OS_IMAGE) 10M
+	@$(DD) if=$(BINARY) of=$(OS_IMAGE) conv=notrunc
+	@echo "Done!"
+	@echo "Creating VDI image..."
+	@$(VBOX) convertdd $(OS_IMAGE) $(VDI_IMAGE) --format VDI
+	@echo "Done! OS image created successfully!"
+
+# Remove generated image files
+remove:
+	@echo "Removing image files..."
+	@rm -f $(OS_IMAGE) $(BINARY) $(VDI_IMAGE)
+	@echo "Image files removed!"
+
+# Full cleanup
+ERASE: remove
+	@echo "Cleaning build artifacts..."
+	@$(CARGO) clean
+	@rm -f $(BOOT_BIN) $(BINARY) $(OS_IMAGE) $(VDI_IMAGE)
+	@echo "Full cleanup completed!"
+
+# Run the OS in QEMU emulator
+run-qemu:
+	@echo "Running OS in QEMU..."
+	@qemu-system-x86_64 -drive file=$(OS_IMAGE),format=raw
+	@echo "QEMU session ended."
+
+
+# Display help
+help:
+	@echo "=========================================="
+	@echo "Makefile commands:"
+	@echo "=========================================="
+	@echo "  make boot    - Build the bootloader and kernel"
+	@echo "  make remove  - Remove generated image files"
+	@echo "  make os      - Create the OS image files"
+	@echo "  make ERASE   - Full cleanup of build artifacts"
+	@echo "  make help    - Display this help message"
+	@echo "  make run-qemu - Run the OS in QEMU emulator"
+	@echo "=========================================="
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -65,21 +65,14 @@ help:
 	@echo "  make ERASE   - Full cleanup of build artifacts"
 	@echo "  make help    - Display this help message"
 	@echo "  make run-qemu - Run the OS in QEMU emulator"
+	@echo "  make test    - Erase, compile, test"
 	@echo "=========================================="
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Test: Clean, build, and run
+test:
+	@make ERASE
+	@make os
+	@make run-qemu
 
 
 

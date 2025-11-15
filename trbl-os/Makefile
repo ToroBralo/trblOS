@@ -6,7 +6,7 @@ NASM = nasm
 QEMU_IMG = qemu-img
 DD = dd
 VBOX = VBoxManage
-
+CLEAR = clear
 OS_IMAGE = trbl-os.img
 VDI_IMAGE = trbl-os.vdi
 BINARY = trbl-os.bin
@@ -15,20 +15,17 @@ BOOT_BIN = boot/boot.bin
 # Build bootloader and kernel
 boot:
 	@echo "Building bootloader and kernel..."
-	@$(CARGO) build --target x86_64-trbl_os.json
+	@$(CARGO) bootimage
 	@$(NASM) -f bin boot/boot.asm -o $(BOOT_BIN)
-	@echo "Converting kernel ELF to flat binary..."
-	@llvm-objcopy -O binary target/x86_64-trbl_os/debug/trbl-os target/x86_64-trbl_os/debug/trbl-os.bin
-	@echo "Bootloader built successfully!"
+	@echo "Build completed!"
 
 # Create OS image files
 os: boot
 	@echo "Creating Main Binary..."
-	@cat $(BOOT_BIN) target/x86_64-trbl_os/debug/trbl-os.bin > $(BINARY)
 	@echo "Done!"
 	@echo "Converting to QEMU image..."
 	@$(QEMU_IMG) create -f raw $(OS_IMAGE) 10M
-	@$(DD) if=$(BINARY) of=$(OS_IMAGE) conv=notrunc
+	@$(DD) if=target/x86_64-trbl_os/debug/bootimage-trbl-os.bin of=$(OS_IMAGE) conv=notrunc
 	@echo "Done!"
 	@echo "Creating VDI image..."
 	@$(VBOX) convertdd $(OS_IMAGE) $(VDI_IMAGE) --format VDI
@@ -77,19 +74,11 @@ test:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+bootimage:
+	@$(QEMU_IMG) create -f raw bootimage-trbl-os.bin 10M
+	@$(DD) if=trbl-os.bin of=bootimage-trbl-os.bin conv=notrunc
+	@$(VBOX) convertdd trbl-os.img trbl-os.vdi --format VDI
+	@$(CLEAR)
 
 
 

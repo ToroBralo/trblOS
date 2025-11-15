@@ -19,3 +19,34 @@ target
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+boot/*.bin
+boot/*.elf
+boot/*.map
+boot/*.lst
+boot/*.o
+boot/*.img
+build/
+*.bin
+*.elf
+*.map
+*.lst
+*.o
+*.img
+*.log
+*.swp
+.vscode/
+*.code-workspace
+*.tmp
+*.bak
+*.old
+*.orig
+.DS_Store
+*.directory
+*.class
+*.jar
+*.war
+*.ear
+*.iml
+*.gradle
+.gradle/
+*.vdi

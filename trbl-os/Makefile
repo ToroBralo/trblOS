@@ -15,7 +15,7 @@ BOOT_BIN = boot/boot.bin
 # Build bootloader and kernel
 boot:
 	@echo "Building bootloader and kernel..."
-	@$(CARGO) bootimage
+	@$(CARGO) run
 	@$(NASM) -f bin boot/boot.asm -o $(BOOT_BIN)
 	@echo "Build completed!"
 
@@ -74,11 +74,8 @@ test:
 
 
 
-bootimage:
-	@$(QEMU_IMG) create -f raw bootimage-trbl-os.bin 10M
-	@$(DD) if=trbl-os.bin of=bootimage-trbl-os.bin conv=notrunc
-	@$(VBOX) convertdd trbl-os.img trbl-os.vdi --format VDI
-	@$(CLEAR)
+run:
+	@$(CARGO) run
 
 
 

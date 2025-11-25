@@ -15,9 +15,8 @@ fn panic(_info: &PanicInfo) -> ! {
 #[unsafe(no_mangle)]
 pub extern "C" fn _start() -> ! {
 
-    vga_buffer::print_something();
-
-    #[warn(clippy::empty_loop)]
+    use core::fmt::Write;
+    vga_buffer::WRITER.lock().write_str("Hello World!").unwrap();
 
     loop{}
 

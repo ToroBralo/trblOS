@@ -1,0 +1,7 @@
+build/
+*.bin
+*.img
+*.vdi
+*.iso
+*.elf
+*.gitignore

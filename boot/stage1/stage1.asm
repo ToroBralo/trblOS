@@ -1,45 +1,46 @@
 ; ------------------------------------------------------------
-;  stage1.asm — Bootloader REAL (versión alfa)
+; stage1.asm — Bootloader REAL (FIXED)
 ; ------------------------------------------------------------
 [org 0x7C00]
 [bits 16]
 
 BOOT_DRIVE db 0
 
-
 start:
-; -------------------------
-; Inicializar segmentos
-; -------------------------
-    xor ax, ax
-    mov ds, ax
-    mov es, ax
-    
-; -----------------------------------------
-; Cargar Stage2 desde disco
-; -----------------------------------------
-    mov [BOOT_DRIVE], dl
-    mov bx, 0x1000        ; offset destino
-    ; es ya está en 0x0000 (línea 15)
+cli
 
-    mov ah, 0x02          ; INT 13h - leer sectores
-    mov al, 4             ; número de sectores (Stage2)
-    mov ch, 0x00          ; cilindro
-    mov cl, 0x02          ; sector (empieza en 2 → LBA 1)
-    mov dh, 0x00          ; cabeza
-    mov dl, [BOOT_DRIVE]  ; disco desde BIOS
+xor ax, ax
+mov ds, ax
+mov es, ax
+mov ss, ax
+mov sp, 0x7C00        ; PILA (CRÍTICO)
 
-    int 0x13
+sti
 
+mov [BOOT_DRIVE], dl
 
-; -------------------------
-; Saltar a Stage2
-; -------------------------
-    jmp 0x0000:0x1000
+; ------------------------------------------------------------
+; Cargar Stage2 (2 sectores)
+; ------------------------------------------------------------
+mov ax, 0x0000
+mov es, ax
+mov bx, 0x1000        ; destino
 
-; ============================================================
-; FIRMA
-; ============================================================
+mov ah, 0x02          ; INT 13h - leer
+mov al, 2             ; <<< SOLO 2 SECTORES
+mov ch, 0x00
+mov cl, 0x02          ; sector 2
+mov dh, 0x00
+mov dl, [BOOT_DRIVE]
+
+int 0x13
+jc disk_error
+
+jmp 0x0000:0x1000
+
+disk_error:
+hlt
+jmp disk_error
 
 times 510-($-$$) db 0
 dw 0xAA55

@@ -27,7 +27,7 @@ mov es, ax
 mov bx, 0x1000        ; destino
 
 mov ah, 0x02          ; INT 13h - leer
-mov al, 2             ; <<< SOLO 2 SECTORES
+mov al, 6            ; 
 mov ch, 0x00
 mov cl, 0x02          ; sector 2
 mov dh, 0x00

@@ -17,7 +17,6 @@ protected_mode_entry:
 
     mov esp, 0x90000
 
-    call init_idt
 
 
     mov dword [0xB8000], 0x1F321F33 ; "32"
@@ -28,56 +27,74 @@ protected_mode_entry:
     jmp .hang
 
 
-; ============================================================
-; ISR STUB (handler seguro)
-; ============================================================
-isr_stub:
-    mov dword [0xB8000], 0x4F584F45 ; "EX"
-.isr_hang:
-    hlt
-    jmp .isr_hang
+[BITS 32]
 
-; ============================================================
-; IDT TABLE
-; ============================================================
-align 8
+; ==============================
+; Constantes
+; ==============================
+IDT_ENTRIES equ 256
+KERNEL_CS   equ 0x08        ; Selector de código (GDT)
+
+; ==============================
+; IDT
+; ==============================
+section .data
+
 idt_start:
-    times 256 dq 0
+    times IDT_ENTRIES dq 0
 idt_end:
 
 idt_descriptor:
     dw idt_end - idt_start - 1
     dd idt_start
 
-; ============================================================
-; INIT IDT
-; ============================================================
-init_idt:
-    mov edi, idt_start
-    mov ecx, 256
+; ==============================
+; Código
+; ==============================
+section .text
+global idt_load
+global isr0
 
-.fill:
-    mov eax, isr_stub
-
-    ; offset low
-    mov word [edi + 0], ax
-
-    ; selector de código
-    mov word [edi + 2], 0x08
-
-    ; byte cero
-    mov byte [edi + 4], 0
-
-    ; flags: present | ring0 | interrupt gate
-    mov byte [edi + 5], 0x8E
-
-    ; offset high
-    shr eax, 16
-    mov word [edi + 6], ax
-
-    add edi, 8
-    loop .fill
-
+; ------------------------------
+; Cargar IDT
+; ------------------------------
+idt_load:
     lidt [idt_descriptor]
     ret
 
+; ------------------------------
+; ISR ejemplo (Divide by Zero)
+; ------------------------------
+isr0:
+    cli
+    pushad
+
+    ; Aquí iría tu lógica de manejo
+    ; (debug, imprimir, halt, etc.)
+
+    popad
+    sti
+    iret
+
+; ------------------------------
+; Inicializar una entrada IDT
+; ------------------------------
+global idt_set_gate
+idt_set_gate:
+    ; void idt_set_gate(int n, uint32 handler)
+    ; eax = n
+    ; ebx = handler
+
+    mov edx, ebx
+    mov ebx, eax
+    shl ebx, 3
+    add ebx, idt_start
+
+    mov word [ebx], dx          ; offset low
+    mov word [ebx + 2], KERNEL_CS
+    mov byte [ebx + 4], 0
+    mov byte [ebx + 5], 10001110b ; Present, Ring 0, 32-bit interrupt gate
+    shr edx, 16
+    mov word [ebx + 6], dx      ; offset high
+
+    ret

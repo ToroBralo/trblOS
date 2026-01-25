@@ -23,7 +23,7 @@ CompileASM: CreateDirs
 
 image: CompileASM
 
-	$(DD) if=/dev/zero of=build/os.img bs=512 count=6
+	$(DD) if=/dev/zero of=build/os.img bs=512 count=128
 	$(DD) if=$(BUILD_STG1) of=build/os.img seek=0 conv=notrunc 
 	$(DD) if=$(BUILD_STG2) of=build/os.img seek=1 conv=notrunc 
 	$(DD) if=$(BUILD_STG3) of=build/os.img seek=2 conv=notrunc 

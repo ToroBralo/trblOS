@@ -35,10 +35,16 @@ mov dword [0xB8004], 0x1F4F1F4B ; OK
 ; Init IDT
 call idt_init
 call idt_load
+call pic_remap
+call pit_init
+
+mov eax, 32       ; IRQ0 = vector 32
+mov ebx, irq0_handler
+call idt_set_gate
+
 
 sti ; Now safe to enable interrupts
-xor eax, eax
-div eax ; Provoca #DE para probar el manejador
+
 .loop:
 hlt
 jmp .loop
@@ -130,3 +136,62 @@ jmp .exc_loop
 pop ebx
 pop eax
 ret
+
+
+pic_remap:
+mov al, 0x11
+out 0x20, al
+out 0xA0, al
+
+mov al, 0x20
+out 0x21, al
+mov al, 0x28
+out 0xA1, al
+
+mov al, 0x04
+out 0x21, al
+mov al, 0x02
+out 0xA1, al
+
+mov al, 0x01
+out 0x21, al
+out 0xA1, al
+
+; solo IRQ0 activada
+mov al, 11111110b
+out 0x21, al
+mov al, 11111111b
+out 0xA1, al
+
+ret
+
+irq0_handler:
+pushad
+
+inc dword [tick_count]
+
+mov eax, [tick_count]
+add eax, '0'
+mov byte [0xB800E], al
+mov byte [0xB800F], 0x0A
+
+mov al, 0x20
+out 0x20, al
+
+popad
+iret
+
+
+pit_init:
+mov al, 00110110b   ; Channel 0, lobyte/hibyte, mode 3
+out 0x43, al
+
+mov ax, 1193182 / 100  ; ~100 Hz
+out 0x40, al
+mov al, ah
+out 0x40, al
+
+ret
+
+section .bss
+tick_count resd 1

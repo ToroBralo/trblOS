@@ -37,7 +37,8 @@ call idt_init
 call idt_load
 
 sti ; Now safe to enable interrupts
-
+xor eax, eax
+div eax ; Provoca #DE para probar el manejador
 .loop:
 hlt
 jmp .loop
@@ -94,16 +95,16 @@ ret
 ; ================================
 isr_stub:
 cli
-
+pushad
 ; VGA directo sin segmentos
 mov byte [0xB8008], 'E'
 mov byte [0xB8009], 0x4F
 mov byte [0xB800A], 'X'
 mov byte [0xB800B], 0x4F
 
-.hang:
-hlt
-jmp .hang
+popad
+iret
+
 
 
 

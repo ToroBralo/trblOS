@@ -30,6 +30,10 @@ STG3_FOLDER := TRBL-bootloader/stage3 # Carpeta de stage3
 
 STG3 := TRBL-bootloader/stage3/stage3.asm # Archivo de stage3.asm
 
+STG4_FOLDER := TRBL-bootloader/stage4 # Carpeta de stage4
+
+STG4 := TRBL-bootloader/stage4/stage4.asm # Archivo de stage4.asm
+
 
 
 # Archivos y carpetas del Kernel
@@ -59,6 +63,10 @@ BUILD_STG2 := build/TRBL-bootloader/stage2/stage2.bin # Archivo de stage2.bin
 BUILD_STG3_FOLDER := build/TRBL-bootloader/stage3 # Carpeta de stage3 en build
 
 BUILD_STG3 := build/TRBL-bootloader/stage3/stage3.bin # Archivo de stage3.bin
+
+BUILD_STG4_FOLDER := build/TRBL-bootloader/stage4 # Carpeta de stage4 en build
+
+BUILD_STG4 := build/TRBL-bootloader/stage4/stage4.bin # Archivo de stage4.bin
 
 BUILD_KERNEL := build/TRBL-kernel # Carpeta del kernel en build
 
